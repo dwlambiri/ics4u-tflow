@@ -1,2 +1,5 @@
 # ics4u-tflow
-course project
+
+Tensor Flow Project for the ICS4U Course
+
+
