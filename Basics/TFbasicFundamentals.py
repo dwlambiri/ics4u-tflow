@@ -23,9 +23,9 @@ print(sess.run([node1, node2]))
 node3 = tf.add(node1, node2)
 
 #prints the tensor info
-print "node3:", node3
+print("node3:", node3)
 #prints the value held at the tensor:: sess.run(node3)
-print "sess.run(node3):", sess.run(node3)
+print("sess.run(node3):", sess.run(node3))
 
 
 #these are placeholders, something that can hold a different values at different times
