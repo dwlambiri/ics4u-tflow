@@ -235,7 +235,7 @@ def chat():
             _, _, output_logits = run_step(sess, model, encoder_inputs, decoder_inputs,
                                            decoder_masks, bucket_id, True)
             response = _construct_response(output_logits, inv_dec_vocab)
-            print(response)
+            print('\n'+'BOT ++++ ' + response + '\n')
             output_file.write('BOT ++++ ' + response + '\n')
         output_file.write('=============================================\n')
         output_file.close()

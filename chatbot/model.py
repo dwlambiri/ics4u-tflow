@@ -30,6 +30,9 @@ class ChatBotModel(object):
         print('Initialize new model')
         self.fw_only = forward_only
         self.batch_size = batch_size
+        setattr(tf.contrib.rnn.GRUCell, '__deepcopy__', lambda self, _: self)
+        setattr(tf.contrib.rnn.BasicLSTMCell, '__deepcopy__', lambda self, _: self)
+        setattr(tf.contrib.rnn.MultiRNNCell, '__deepcopy__', lambda self, _: self)
     
     def _create_placeholders(self):
         # Feeds for inputs. It's a list of placeholders
@@ -75,6 +78,7 @@ class ChatBotModel(object):
                     feed_previous=do_decode)
 
         if self.fw_only:
+            print('fw is true')
             self.outputs, self.losses = tf.contrib.legacy_seq2seq.model_with_buckets(
                                         self.encoder_inputs, 
                                         self.decoder_inputs, 
@@ -90,6 +94,7 @@ class ChatBotModel(object):
                                             self.output_projection[0]) + self.output_projection[1]
                                             for output in self.outputs[bucket]]
         else:
+            print('fw is false')
             self.outputs, self.losses = tf.contrib.legacy_seq2seq.model_with_buckets(
                                         self.encoder_inputs, 
                                         self.decoder_inputs, 
