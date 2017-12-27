@@ -1,18 +1,51 @@
-HUMAN ++++ hello
-HUMAN ++++ hello
-HUMAN ++++ hello
-HUMAN ++++ hello
-HUMAN ++++ hello
-HUMAN ++++ hello
-HUMAN ++++ hello
 HUMAN ++++ hi
+BOT ++++ what . . .
+HUMAN ++++ how are you?
+BOT ++++ what . .
+HUMAN ++++ what?
+BOT ++++ what . .
+HUMAN ++++ how is the weather in boston?
+BOT ++++ . . . .
+HUMAN ++++ do you know what boston is?
+BOT ++++ . . . . . .
+HUMAN ++++ i need you to answer!
+BOT ++++ what . .
+HUMAN ++++ make sure you answer please!
+BOT ++++ . . . . . . . .
+=============================================
 HUMAN ++++ hi
+BOT ++++ .
+HUMAN ++++ how are you mr bot?
+BOT ++++ .
+HUMAN ++++ what is going on?
+BOT ++++ .
+HUMAN ++++ what a fuck up!
+BOT ++++ .
+HUMAN ++++ sfd sf sdf sf s fsf
+BOT ++++ .
+HUMAN ++++ s s s s s s s s s s
+BOT ++++ .
+HUMAN ++++ d
+BOT ++++ .
+HUMAN ++++ rrrrrrrrr r r r r r r r r r r r r r rrr r r r r r r r rr r r r r rr
+BOT ++++ .
+HUMAN ++++ i i i i i i i i i i i i i i i i i i i i i i i i i i i i ii  ii 
+BOT ++++ .
+HUMAN ++++ bye
+BOT ++++ .
+HUMAN ++++ why?
+BOT ++++ .
+=============================================
 HUMAN ++++ hi
-HUMAN ++++ 1234
-HUMAN ++++ 1234 
-HUMAN ++++ 1234
-HUMAN ++++ 1234
-HUMAN ++++ 1234
-HUMAN ++++ 1234
-HUMAN ++++ 1234
-HUMAN ++++ hi
+BOT ++++ .
+HUMAN ++++ what is going on?
+BOT ++++ .
+HUMAN ++++ i ii iid sd i i ii ii i i i i i i i i i i i i i i i
+BOT ++++ you ' re going to be .
+HUMAN ++++ what
+BOT ++++ .
+HUMAN ++++ t t t t t t tt t t t t t t t t t t t t t t t t t t t t t t t t
+BOT ++++ .
+HUMAN ++++ a a a a a a a a a a a a a a a a a a a aa a a a a a  a a a a a
+BOT ++++ a like a little a <unk> .
+=============================================
