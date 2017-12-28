@@ -91,7 +91,7 @@ def _get_buckets():
     choose a random bucket later on.
     """
     test_buckets = data.loadData(config.TESTFILE+config.IDS+config.ENCODER, config.TESTFILE+config.IDS+config.DECODER)
-    data_buckets = data.loadData(config.TRAINFILE+config.IDS+config.ENCODER, config.TESTFILE+config.IDS+config.DECODER)
+    data_buckets = data.loadData(config.TRAINFILE+config.IDS+config.ENCODER, config.TRAINFILE+config.IDS+config.DECODER)
     train_bucket_sizes = [len(data_buckets[b]) for b in range(len(config.BUCKETS))]
     print("Number of samples in each bucket:\n", train_bucket_sizes)
     train_total_size = sum(train_bucket_sizes)
