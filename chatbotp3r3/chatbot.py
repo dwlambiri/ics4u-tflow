@@ -162,7 +162,7 @@ def train():
                 iteration += 1
     
                 if iteration % skip_step == 0:
-                    print('Iter [{}] = ( Average Step Loss {:3.3f}: Average Step Time {:3.3f} s )'.format(iteration, total_loss/skip_step, (time.time() - start))/skip_step)
+                    print('Iter [{}] = ( Average Step Loss {:3.3f}: Average Step Time {:3.3f} s )'.format(iteration, total_loss/skip_step, (time.time() - start)/skip_step))
                     start = time.time()
                     total_loss = 0
                     saver.save(sess, os.path.join(config.CPT_PATH, 'chatbot'), global_step=model.global_step)
