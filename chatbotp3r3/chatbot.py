@@ -129,7 +129,7 @@ def _eval_test_set(sess, model, test_buckets):
                                                                         batchSize=config.BATCH_SIZE)
         _, step_loss, _ = run_step(sess, model, encoder_inputs, decoder_inputs, 
                                    decoder_masks, bucket_id, True)
-        print('Test bucket {}: loss {}, time {}'.format(bucket_id, step_loss, time.time() - start))
+        print('Test bucket[{}] =( loss {:3.3f}: time {:3.3f} s )'.format(bucket_id, step_loss, time.time() - start))
 
 def train():
     """ Train the bot """
@@ -149,20 +149,20 @@ def train():
 
         iteration = model.global_step.eval()
         total_loss = 0
+        start = time.time()
         while True:
             try:
                 skip_step = _get_skip_step(iteration)
                 bucket_id = _get_random_bucket(train_buckets_scale)
                 encoder_inputs, decoder_inputs, decoder_masks = data.getBatch(data_buckets[bucket_id], 
                                                                                bucket_id,
-                                                                               batchSize=config.BATCH_SIZE)
-                start = time.time()
+                                                                               batchSize=config.BATCH_SIZE)               
                 _, step_loss, _ = run_step(sess, model, encoder_inputs, decoder_inputs, decoder_masks, bucket_id, False)
                 total_loss += step_loss
                 iteration += 1
     
                 if iteration % skip_step == 0:
-                    print('Iter {}: loss {}, time {}'.format(iteration, total_loss/skip_step, time.time() - start))
+                    print('Iter [{}] = ( Average Step Loss {:3.3f}: Average Step Time {:3.3f} s )'.format(iteration, total_loss/skip_step, (time.time() - start))/skip_step)
                     start = time.time()
                     total_loss = 0
                     saver.save(sess, os.path.join(config.CPT_PATH, 'chatbot'), global_step=model.global_step)

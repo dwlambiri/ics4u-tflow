@@ -104,7 +104,7 @@ class ChatBotModel(object):
                                         config.BUCKETS,
                                         lambda x, y: _seq2seq_f(x, y, False),
                                         softmax_loss_function=self.softmax_loss_function)
-        print('Time:', time.time() - start)
+        print('Time: {:3.3f} seconds'.format(time.time() - start))
 
     def _creat_optimizer(self):
         print('Creating optimizer function (one per bucket)...')
@@ -125,7 +125,7 @@ class ChatBotModel(object):
                     self.gradient_norms.append(norm)
                     self.train_ops.append(self.optimizer.apply_gradients(zip(clipped_grads, trainables), 
                                                             global_step=self.global_step))
-                    print('Created optimized function for bucket {} in {} seconds'.format(bucket, time.time() - start))
+                    print('Created optimized function for bucket {} in {:3.3f} seconds'.format(bucket, time.time() - start))
                     start = time.time()
 
 
