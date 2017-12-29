@@ -1,0 +1,324 @@
+HUMAN ++++ hi
+BOT ++++ yes
+HUMAN ++++ how are you
+BOT ++++ 
+HUMAN ++++ how are you doing today
+BOT ++++ im a good
+HUMAN ++++ is there nuclear war
+BOT ++++ <unk>
+HUMAN ++++ i think general ripper is starting nuclear war
+BOT ++++ <unk> <unk> <unk> <unk> <unk> <unk>
+HUMAN ++++ why are you saying that
+BOT ++++ i dont know
+HUMAN ++++ how is the weather in paris
+BOT ++++ and the <unk>
+HUMAN ++++ i love you
+BOT ++++ 
+HUMAN ++++ i said i love you
+BOT ++++ i love you
+HUMAN ++++ ok thanks
+BOT ++++ 
+HUMAN ++++ i said ok thanks
+BOT ++++ i did
+HUMAN ++++ the rain in spain in mainly in the plain
+BOT ++++ and the <unk> and the <unk>
+HUMAN ++++ yes in the plain
+BOT ++++ i dont
+=============================================
+HUMAN ++++ hi
+BOT ++++ 
+HUMAN ++++ hello
+BOT ++++ 
+HUMAN ++++ i said hi
+BOT ++++ 
+HUMAN ++++ dont be rude
+BOT ++++ bastard
+HUMAN ++++ you are a bastard
+BOT ++++ i know
+HUMAN ++++ i love you man
+BOT ++++ you know
+HUMAN ++++ know what
+BOT ++++ 
+HUMAN ++++ where is general ripper
+BOT ++++ 
+HUMAN ++++ how about mandrick
+BOT ++++ 
+HUMAN ++++ i want to go to paris
+BOT ++++ you go home
+HUMAN ++++ i just ate a sandwich
+BOT ++++ what happened to do
+HUMAN ++++ are you eating anythin
+BOT ++++ im not <unk>
+HUMAN ++++ i like sandwiches with mayo
+BOT ++++ you dont know you did
+HUMAN ++++ mayonaisse
+BOT ++++ <unk>
+HUMAN ++++ bologna
+BOT ++++ <unk>
+HUMAN ++++ i was in a very messy relationship
+BOT ++++ thats what i said
+=============================================
+HUMAN ++++ my name is monica and i want to talk to you
+BOT ++++ and dont worry to me i want to go
+HUMAN ++++ who am i talking to
+BOT ++++ what do you want
+HUMAN ++++ i want to talk
+BOT ++++ you were a drink
+HUMAN ++++ i dont drink
+BOT ++++ <unk>
+HUMAN ++++ i dont drink
+BOT ++++ <unk>
+HUMAN ++++ i drink wiskey and cola
+BOT ++++ <unk> <unk> <unk>
+HUMAN ++++ yes i said coca cola
+BOT ++++ you said i dont understand
+HUMAN ++++ i know, cola is shit and it is not good for you
+BOT ++++ you dont know what youre going to do to do it
+HUMAN ++++ but i do know
+BOT ++++ like her
+HUMAN ++++ i am a bot that likes to talk to other people
+BOT ++++ what do you want to do it
+HUMAN ++++ it is not what i want but what i can
+BOT ++++ what do you want to do
+HUMAN ++++ i want to eat a sandwich with mayo
+BOT ++++ what do you want to do
+HUMAN ++++ i thought that i told you already
+BOT ++++ what do you mean are you
+=============================================
+HUMAN ++++ hi
+BOT ++++ 
+HUMAN ++++ how are you dude
+BOT ++++ i dont know
+HUMAN ++++ is the dude in
+BOT ++++ i dont
+HUMAN ++++ well i want a white russian
+BOT ++++ please
+HUMAN ++++ please what
+BOT ++++ <unk>
+HUMAN ++++ i was in passadena last night and i met with maud
+BOT ++++ i didnt say that was a friend
+HUMAN ++++ she is not my friend either
+BOT ++++ yes she is
+HUMAN ++++ how do you know?
+BOT ++++ i know
+=============================================
+HUMAN ++++ bye
+BOT ++++ <unk>
+HUMAN ++++ bye bye
+BOT ++++ 
+HUMAN ++++ hello and goodbye
+BOT ++++ of my <unk>
+HUMAN ++++ how are you
+BOT ++++ <unk>
+HUMAN ++++ you dont know how you are?
+BOT ++++ and im very tired
+HUMAN ++++ have you been working long hours?
+BOT ++++ when i am
+HUMAN ++++ in the past i tried to train many bots
+BOT ++++ and my <unk> and <unk>
+HUMAN ++++ but they were very dumb
+BOT ++++ <unk> <unk>
+=============================================
+HUMAN ++++ howdy partner
+BOT ++++ 
+HUMAN ++++ i
+BOT ++++ 
+HUMAN ++++ hi
+BOT ++++ huh
+HUMAN ++++ hi
+BOT ++++ huh
+HUMAN ++++ how are you
+BOT ++++ <unk>
+HUMAN ++++ who
+BOT ++++ 
+HUMAN ++++ who
+BOT ++++ 
+HUMAN ++++ who am i
+BOT ++++ <unk>
+=============================================
+HUMAN ++++ hi
+BOT ++++ hello
+HUMAN ++++ how are you
+BOT ++++ <unk>
+HUMAN ++++ hi
+BOT ++++ hello
+HUMAN ++++ hello
+BOT ++++ 
+HUMAN ++++ good bye
+BOT ++++ 
+HUMAN ++++ i want to eat chinese food tonight
+BOT ++++ <unk> <unk> <unk> <unk> <unk>
+HUMAN ++++ i love you
+BOT ++++ 
+HUMAN ++++ do you love me
+BOT ++++ got a while
+HUMAN ++++ i am not sure 
+BOT ++++ what
+HUMAN ++++ i am not sure if you love me
+BOT ++++ this way of a while
+HUMAN ++++ which way
+BOT ++++ <unk> <unk>
+HUMAN ++++ where do you go to have a bite at night ripper
+BOT ++++ i have a book from the <unk> <unk>
+HUMAN ++++ you mean in the dude back yard or some other place
+BOT ++++ i mean it was a cop
+HUMAN ++++ what kind of a cop was it 
+BOT ++++ or you <unk> in love
+HUMAN ++++ yes i am
+BOT ++++ <unk>
+HUMAN ++++ when are we going to meet
+BOT ++++ and where are you
+HUMAN ++++ i am in canada and i am freezing my but
+BOT ++++ <unk> <unk> <unk> <unk> <unk> <unk> <unk>
+HUMAN ++++ will it get any better
+BOT ++++ got got out
+HUMAN ++++ who got out
+BOT ++++ <unk>
+HUMAN ++++ is sammy in china
+BOT ++++ and shes <unk>
+HUMAN ++++ hi
+BOT ++++ hello
+HUMAN ++++ hello
+BOT ++++ 
+HUMAN ++++ howdy
+BOT ++++ 
+HUMAN ++++ hanky panky
+BOT ++++ 
+HUMAN ++++ way to go jimmy
+BOT ++++ kids
+HUMAN ++++ keep up the good work
+BOT ++++ the rules are m
+HUMAN ++++ last night i was watching a movie by myself
+BOT ++++ listen you were working on you
+HUMAN ++++ i felt like i was lonely yet someone was watching
+BOT ++++ this is mr play hes coming <unk>
+=============================================
+HUMAN ++++ hi
+BOT ++++ goodbye
+HUMAN ++++ how are you
+BOT ++++ <unk>
+HUMAN ++++ who are you
+BOT ++++ what am you
+HUMAN ++++ i went to see a movie last night
+BOT ++++ the world is <unk>
+HUMAN ++++ what did you do yesteday
+BOT ++++ <unk> me
+HUMAN ++++ you mean you stayed home and played pokemon
+BOT ++++ the same is the perfect friend
+HUMAN ++++ where are you now
+BOT ++++ <unk>
+=============================================
+HUMAN ++++ hi
+BOT ++++ and
+HUMAN ++++ how are you
+BOT ++++ <unk>
+=============================================
+HUMAN ++++ hi
+HUMAN ++++ hi
+BOT ++++ hey
+HUMAN ++++ how are y
+BOT ++++ <unk>
+=============================================
+HUMAN ++++ hi
+HUMAN ++++ hi
+BOT ++++ 
+=============================================
+HUMAN ++++ hi
+BOT ++++ please
+HUMAN ++++ how are you
+BOT ++++ <unk>
+=============================================
+HUMAN ++++ hi
+BOT ++++ 
+HUMAN ++++ hello
+BOT ++++ 
+HUMAN ++++ howdy
+BOT ++++ 
+HUMAN ++++ hanky
+BOT ++++ 
+HUMAN ++++ hanky panky
+BOT ++++ 
+HUMAN ++++ i think there is something fishy here
+BOT ++++ howd you know
+=============================================
+HUMAN ++++ hi
+BOT ++++ know how <pad> <pad> <pad> <pad> <pad>
+HUMAN ++++ how are you
+BOT ++++ do i <pad> <pad> <pad> <pad> <pad>
+HUMAN ++++ are you ok
+BOT ++++ do i <pad> <pad> <pad> <pad> <pad>
+HUMAN ++++ where are you going
+BOT ++++ officer
+HUMAN ++++ where are you going buddy
+BOT ++++ w <pad> kid <pad> <pad> <pad> <pad>
+=============================================
+HUMAN ++++ hi
+BOT ++++ not <unk> <unk> <unk> <unk> <unk> <unk>
+HUMAN ++++ what are you saying
+BOT ++++ story how to <unk> <unk> <unk> <unk>
+=============================================
+HUMAN ++++ hi
+BOT ++++ hey
+HUMAN ++++ how are you
+BOT ++++ i
+HUMAN ++++ who are you
+BOT ++++ what what is it
+HUMAN ++++ i want to talk to you
+BOT ++++ listen to me
+HUMAN ++++ i am trying to do just that
+BOT ++++ bird and ha in the old mouth
+HUMAN ++++ that does not make too much sense does it
+BOT ++++ i saw it i was
+HUMAN ++++ was what
+BOT ++++ or was said
+HUMAN ++++ last night i went to the cinema
+BOT ++++ down the nurse
+HUMAN ++++ fuck you asshole
+BOT ++++ 
+HUMAN ++++ are you speachless now
+BOT ++++ my
+HUMAN ++++ i think you are!
+BOT ++++ please be over
+HUMAN ++++ yes it will be over soon you asshole
+BOT ++++ is much to get
+HUMAN ++++ do you know where i can get chinese food today
+BOT ++++ i the mark i see you can get the first time
+HUMAN ++++ this is fun
+BOT ++++ is my name
+HUMAN ++++ what is your name?
+BOT ++++ peter im being
+HUMAN ++++ so you are peter
+BOT ++++ i dont
+HUMAN ++++ oh come on you are not i
+BOT ++++ tell me how do you know
+=============================================
+HUMAN ++++ hi
+BOT ++++ i promise though daddy though costume though
+HUMAN ++++ how are you mister
+BOT ++++ two and dear book sir okay off
+HUMAN ++++ are you sure
+BOT ++++ im well city pony tonight haaa from
+=============================================
+HUMAN ++++ hi
+BOT ++++ i promise
+HUMAN ++++ what do you promise
+BOT ++++ everythings
+HUMAN ++++ isnt that a bit much
+BOT ++++ i am
+HUMAN ++++ you are what
+BOT ++++ 
+HUMAN ++++ go where
+BOT ++++ 
+HUMAN ++++ where should i go
+BOT ++++ 
+HUMAN ++++ do you know who i am
+BOT ++++ dont know me
+HUMAN ++++ i know you, you are a bot that talks back
+BOT ++++ i know i know i know what he went back to the
+HUMAN ++++ you dont make too much sense but that is ok
+BOT ++++ i dont love harry but i dont know that
+HUMAN ++++ who is harry
+BOT ++++ i want to see
+HUMAN ++++ me too but i cannot
+BOT ++++ and mark up
+=============================================

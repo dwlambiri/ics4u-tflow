@@ -190,13 +190,28 @@ def _construct_response(output_logits, inv_dec_vocab):
     """ Construct a response to the user's encoder input.
     @output_logits: the outputs from sequence to sequence wrapper.
     output_logits is decoder_size np array, each of dim 1 x DEC_VOCAB
+    output_logits is decoder_size np array, each of dim 1 x DEC_VOCAB
     
     This is a greedy decoder - outputs are just argmaxes of output_logits.
-    do not use the top of the output. it contains the pad, ukn and
-    the start seq character. try something better.
     """
-    
-    outputs = [int(np.argmax(logit[0][config.END_ID:])+ config.END_ID) for logit in output_logits]
+    #print(output_logits[0])
+	
+    outputs = []
+    iter = 0
+    factor = 1.5
+    for logit in output_logits:
+        nonstop = np.argmax(logit[0][config.END_ID+1:])+config.END_ID+1
+        #if iter == 0:
+        #   outputs.append(int(nonstop))
+        #else:
+        if logit[0][config.END_ID] > factor* logit[0][nonstop]:
+            outputs.append(config.END_ID)
+        else:
+            outputs.append(int(nonstop))
+        iter = iter +1
+        factor = np.sqrt(factor)
+		
+    #outputs = [int(np.argmax(logit[0][config.END_ID:])+config.END_ID) for logit in output_logits]
     # If there is an EOS symbol in outputs, cut them at that point.
     print("Outputs{}".format(outputs))
     for output in outputs:
