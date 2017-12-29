@@ -192,17 +192,23 @@ def _construct_response(output_logits, inv_dec_vocab):
     output_logits is decoder_size np array, each of dim 1 x DEC_VOCAB
     
     This is a greedy decoder - outputs are just argmaxes of output_logits.
+    do not use the top of the output. it contains the pad, ukn and
+    the start seq character. try something better.
     """
-    #print(output_logits[0])
-    outputs = [int(np.argmax(logit, axis=1)) for logit in output_logits]
+    
+    outputs = [int(np.argmax(logit[0][config.END_ID:])+ config.END_ID) for logit in output_logits]
     # If there is an EOS symbol in outputs, cut them at that point.
+    print("Outputs{}".format(outputs))
+    for output in outputs:
+        print("OToken={}".format(inv_dec_vocab[output]))
     if config.END_ID in outputs:
         outputs = outputs[:outputs.index(config.END_ID)]
     # Print out sentence corresponding to outputs.
     return " ".join([tf.compat.as_str(inv_dec_vocab[output]) for output in outputs])
 
 def chat():
-    """ in test mode, we don't to create the backward path
+    """ 
+    in test mode, we don't to create the backward path
     """
     _, enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
     inv_dec_vocab, _ = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
@@ -234,6 +240,7 @@ def chat():
                 continue
             # Which bucket does it belong to?
             bucket_id = _find_right_bucket(len(token_ids))
+            print("BucketID {} Token Ids {}".format(bucket_id, token_ids))
             # Get a 1-element batch to feed the sentence to the model.
             encoder_inputs, decoder_inputs, decoder_masks = data.getBatch([(token_ids, [])], 
                                                                             bucket_id,
