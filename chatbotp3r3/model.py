@@ -22,7 +22,8 @@ import os
 class ChatBotModel(object):
     
     def __init__(self, forward_only, batch_size):
-        """forward_only: if set, we do not construct the backward pass in the model.
+        """
+        forward_only: if set, we do not construct the backward pass in the model.
         """
         print('Initialize new model')
         self.fw_only = forward_only
@@ -35,7 +36,7 @@ class ChatBotModel(object):
         except OSError:
             print("error: Vocabulary not found!")
     
-    def _create_placeholders(self):
+    def _createPlaceholders(self):
         # Feeds for inputs. It's a list of placeholders
         print('Create TF placeholders for enc and dec objects')
         self.encoder_inputs = [tf.placeholder(tf.int32, shape=[None], name='encoder{}'.format(i))
@@ -57,16 +58,16 @@ class ChatBotModel(object):
             b = tf.get_variable('proj_b', [self.vocabSize])
             self.output_projection = (w, b)
 
-        def sampled_loss(labels=None, logits=None):
+        def sampledLoss(labels=None, logits=None):
             labels = tf.reshape(labels, [-1, 1])
             return tf.nn.sampled_softmax_loss(tf.transpose(w), b, labels, logits, 
                                               config.NUM_SAMPLES, self.vocabSize)
-        self.softmax_loss_function = sampled_loss
+        self.softmax_loss_function = sampledLoss
 
         single_cell = tf.nn.rnn_cell.GRUCell(config.HIDDEN_SIZE)
         self.cell = tf.nn.rnn_cell.MultiRNNCell([single_cell] * config.NUM_LAYERS)
 
-    def _create_loss(self):
+    def _createLoss(self):
         print('Creating a loss function...')
         start = time.time()
         def _seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
@@ -106,7 +107,7 @@ class ChatBotModel(object):
                                         softmax_loss_function=self.softmax_loss_function)
         print('Time: {:3.3f} seconds'.format(time.time() - start))
 
-    def _creat_optimizer(self):
+    def _creatOptimizer(self):
         print('Creating optimizer function (one per bucket)...')
         with tf.variable_scope('training') as scope:
             self.global_step = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
@@ -129,12 +130,12 @@ class ChatBotModel(object):
                     start = time.time()
 
 
-    def _create_summary(self):
+    def _createSummary(self):
         pass
 
-    def build_graph(self):
-        self._create_placeholders()
+    def buildGraph(self):
+        self._createPlaceholders()
         self._inference()
-        self._create_loss()
-        self._creat_optimizer()
-        self._create_summary()
+        self._createLoss()
+        self._creatOptimizer()
+        self._createSummary()
