@@ -186,6 +186,13 @@ def _findRightBucket(length):
     """ Find the proper bucket for an encoder input based on its length """
     return min([b for b in range(len(config.BUCKETS))
                 if config.BUCKETS[b][0] >= length])
+    
+def _isQuestion(word):
+    question = {'how': True,'where': True,'who': True, 'why': True, 'what': True, 'are': True, 'do' : True}
+    try:
+        return question[word]
+    except KeyError:
+        return False
 
 def _constructResponse(output_logits, inv_dec_vocab):
     """ Construct a response to the user's encoder input.
@@ -207,8 +214,9 @@ def _constructResponse(output_logits, inv_dec_vocab):
         if logit[0][config.END_ID] > factor* logit[0][nonstop]:
             outputs.append(config.END_ID)
         else:
+            print("EOS={} Token={}".format(logit[0][config.END_ID], logit[0][nonstop]))
             outputs.append(int(nonstop))
-        factor = factor**0.7
+        factor = factor**0.4
 
     #outputs = [int(np.argmax(logit[0][config.END_ID:])+config.END_ID) for logit in output_logits]
     # If there is an EOS symbol in outputs, cut them at that point.
@@ -218,7 +226,12 @@ def _constructResponse(output_logits, inv_dec_vocab):
     if config.END_ID in outputs:
         outputs = outputs[:outputs.index(config.END_ID)]
     # Print out sentence corresponding to outputs.
-    return " ".join([tf.compat.as_str(inv_dec_vocab[output]) for output in outputs])
+    first = outputs[0]
+    if _isQuestion(inv_dec_vocab[first]):
+        eol = " ?"
+    else:
+        eol = " ."
+    return " ".join([tf.compat.as_str(inv_dec_vocab[output]) for output in outputs]) + eol
 
 def chatWithBot():
     """ 

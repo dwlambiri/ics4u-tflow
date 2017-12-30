@@ -107,7 +107,7 @@ class ChatBotModel(object):
                                         softmax_loss_function=self.softmax_loss_function)
         print('Time: {:3.3f} seconds'.format(time.time() - start))
 
-    def _creatOptimizer(self):
+    def _createOptimizer(self):
         print('Creating optimizer function (one per bucket)...')
         with tf.variable_scope('training') as scope:
             self.global_step = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
@@ -137,5 +137,5 @@ class ChatBotModel(object):
         self._createPlaceholders()
         self._inference()
         self._createLoss()
-        self._creatOptimizer()
+        self._createOptimizer()
         self._createSummary()
