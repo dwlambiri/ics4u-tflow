@@ -174,6 +174,8 @@ def lineTokenizer(bline):
     line = re.sub('\'','',line)
     line = re.sub('\.',' ',line)
     line = re.sub('\"','',line)
+    line = re.sub('#',' number ',line)
+    line = re.sub('19',' nineteen ',line)
     line = re.sub('1',' one ',line)
     line = re.sub('2',' two ',line)
     line = re.sub('3',' three ',line)

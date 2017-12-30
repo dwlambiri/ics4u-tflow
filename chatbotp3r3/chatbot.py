@@ -234,9 +234,15 @@ def _constructResponse(output_logits, inv_dec_vocab):
             outputs.append(config.END_ID)
         else:
             # print("EOS={} Token={}".format(logit[0][config.END_ID], logit[0][nonstop]))
+            factor = factor**0.3
+            try:
+                if outputs[-1] == config.END_ID:
+                    outputs[-1] = config.START_ID
+                    factor = 1.5
+            except IndexError:
+                pass
             outputs.append(int(nonstop))
             #if logit[0][config.END_ID] > logit[0][nonstop]:
-            factor = factor**0.5
 
     #outputs = [int(np.argmax(logit[0][config.END_ID:])+config.END_ID) for logit in output_logits]
     # If there is an EOS symbol in outputs, cut them at that point.
@@ -260,9 +266,8 @@ def chatWithBot():
     """ 
     in test mode, we don't to create the backward path
     """
-    _, enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
-    inv_dec_vocab, _ = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
-
+    inv_dec_vocab , enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
+    
     model = ChatBotModel(True, batchSize=1)
     model.buildGraph()
 
@@ -287,7 +292,6 @@ def chatWithBot():
             token_ids = data.sentence2ID(enc_vocab, str(line))
             if (len(token_ids) > max_length):
                 print('Max length I can handle is:', max_length)
-                line = _getUserInput()
                 continue
             # Which bucket does it belong to?
             bucket_id = _findRightBucket(len(token_ids))
@@ -302,7 +306,7 @@ def chatWithBot():
             response = _constructResponse(output_logits, inv_dec_vocab)
             print('\n'+'BOT ++++ ' + response + '\n')
             output_file.write('BOT ++++ ' + response + '\n')
-        output_file.write('=============================================\n')
+        output_file.write('==============={}==============================\n'.format(time.ctime()))
         output_file.close()
         writer.close() 
 
