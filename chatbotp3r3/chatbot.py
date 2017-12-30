@@ -226,11 +226,14 @@ def _constructResponse(output_logits, inv_dec_vocab):
     if config.END_ID in outputs:
         outputs = outputs[:outputs.index(config.END_ID)]
     # Print out sentence corresponding to outputs.
-    first = outputs[0]
-    if _isQuestion(inv_dec_vocab[first]):
-        eol = " ?"
-    else:
-        eol = " ."
+    try:
+        first = outputs[0]
+        if _isQuestion(inv_dec_vocab[first]):
+            eol = " ?"
+        else:
+            eol = " ."
+    except IndexError:
+        eol = " ???"
     return " ".join([tf.compat.as_str(inv_dec_vocab[output]) for output in outputs]) + eol
 
 def chatWithBot():
