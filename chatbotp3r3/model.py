@@ -6,8 +6,6 @@ Works with python2.7 and python3.5
 
 Based on:
 Sequence to sequence model by Cho et al.(2014)
-
-Created by Chip Huyen as the starter code for assignment 3,
 class CS 20SI: "TensorFlow for Deep Learning Research"
 cs20si.stanford.edu
 

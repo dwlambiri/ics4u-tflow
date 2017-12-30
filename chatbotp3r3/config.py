@@ -4,8 +4,6 @@ ICU4U Winter 2017 project
 
 Based on:
 Sequence to sequence model by Cho et al.(2014)
-
-Created by Chip Huyen as the starter code for assignment 3,
 class CS 20SI: "TensorFlow for Deep Learning Research"
 cs20si.stanford.edu
 """
