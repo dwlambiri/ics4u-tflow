@@ -174,6 +174,18 @@ def lineTokenizer(bline):
     line = re.sub('\'','',line)
     line = re.sub('\.',' ',line)
     line = re.sub('\"','',line)
+    line = re.sub('1',' one ',line)
+    line = re.sub('2',' two ',line)
+    line = re.sub('3',' three ',line)
+    line = re.sub('4',' four ',line)
+    line = re.sub('5',' five ',line)
+    line = re.sub('6',' six ',line)
+    line = re.sub('7',' seven ',line)
+    line = re.sub('8',' eight ',line)
+    line = re.sub('9',' nine ',line)
+    line = re.sub('0',' zero ',line)
+    
+    
     
     """
     All words found in a line will be added to this list
