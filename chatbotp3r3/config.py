@@ -22,6 +22,7 @@ TESTFILE  = 'test'
 ENCODER   = '.enc'
 DECODER   = '.dec'
 IDS       = '_ids'
+CMDFILENAME = 'test.txt'
 
 
 # vocabulary parameters

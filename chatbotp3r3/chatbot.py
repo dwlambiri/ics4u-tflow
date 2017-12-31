@@ -310,9 +310,63 @@ def chatWithBot():
         output_file.close()
         writer.close() 
 
+def testTheBot():
+    """ 
+    in test mode, we don't to create the backward path
+    """
+    inv_dec_vocab , enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
+    
+    model = ChatBotModel(True, batchSize=1)
+    model.buildGraph()
+
+    saver = tf.train.Saver()
+    
+    with tf.Session() as sess:
+        writer = tf.summary.FileWriter(config.CPT_PATH, sess.graph)
+        sess.run(tf.global_variables_initializer())
+        _checkRestoreParameters(sess, saver)
+        output_file = open(os.path.join(config.PROCESSED_PATH, config.OUTPUT_FILE), 'a+')
+        # Decode from standard input.
+        max_length = config.BUCKETS[-1][0]
+        print('Testing ICS4UBot using test file {}'.format(config.CMDFILENAME))
+        try:
+            with open(config.CMDFILENAME, 'r') as file:
+                for line in file.readlines():
+                    if len(line) > 0 and line[-1] == '\n':
+                        line = line[:-1]
+                    if line == '':
+                        break
+                    output_file.write('HUMAN ++++ ' + line + '\n')
+                    # Get token-ids for the input sentence.
+                    token_ids = data.sentence2ID(enc_vocab, str(line))
+                    if (len(token_ids) > max_length):
+                        print('Max length I can handle is:', max_length)
+                        continue
+                    # Which bucket does it belong to?
+                    bucket_id = _findRightBucket(len(token_ids))
+                    print("BucketID {} Token Ids {}".format(bucket_id, token_ids))
+                    # Get a 1-element batch to feed the sentence to the model.
+                    encoder_inputs, decoder_inputs, decoder_masks = data.getBatch([(token_ids, [])], 
+                                                                                    bucket_id,
+                                                                                    batchSize=1)
+                    # Get output logits for the sentence.
+                    _, _, output_logits = runStep(sess, model, encoder_inputs, decoder_inputs,
+                                                   decoder_masks, bucket_id, True)
+                    response = _constructResponse(output_logits, inv_dec_vocab)
+                    print('\n'+'BOT ++++ ' + response + '\n')
+                    output_file.write('BOT ++++ ' + response + '\n')
+                file.close()
+        except FileNotFoundError:
+            print('error: Test file {} not found!'.format(config.CMDFILENAME))
+
+        output_file.write('==============={}==============================\n'.format(time.ctime()))
+        output_file.close()
+        writer.close() 
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices={'train', 'chat'},
+    parser.add_argument('--mode', choices={'train', 'chat', 'test'},
                         default='train', help="mode. if not specified, it's in the trainTheBot mode")
     args = parser.parse_args()
 
@@ -327,6 +381,8 @@ def main():
         trainTheBot()
     elif args.mode == 'chat':
         chatWithBot()
+    elif args.mode == 'test':
+        testTheBot()
 
 if __name__ == '__main__':
     main()
