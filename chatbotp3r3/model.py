@@ -23,7 +23,50 @@ import config
 import os
 
 class ChatBotModel(object):
-    
+    """
+    Sequence-to-sequence model with attention decoder and multiple buckets.
+      This class implements a multi-layer recurrent neural network as encoder,
+      and an attention-based decoder. This is the same as the model described in
+      this paper: http://arxiv.org/abs/1412.7449.
+      The model was invented for language to language translation
+      and is implemented by google and is part of
+      tensorflow. We need to configure the model with appropriate parameters
+      to see if it can be used for a chatbot.
+      This class also allows to use GRU cells in addition to LSTM cells, and
+      sampled softmax to handle large output vocabulary size. 
+      Softmax, or normalized exponential function is decribed here:
+       https://en.wikipedia.org/wiki/Softmax_function
+      
+      Data Members:
+      vocabSize: size of the vocabulary. The seq2seq class uses 2 vocabularies
+      one for the source language and one for the target language. For
+      chatting we need only one vocabulary that is passed to both sourceVocab
+      and targetVocab in the seq2seq model
+      buckets: a list of pairs (I, O), where I specifies maximum input length
+        that will be processed in that bucket, and O specifies maximum output
+        length. Training instances that have inputs longer than I or outputs
+        longer than O will be pushed to the next bucket and padded accordingly.
+        We assume that the list is sorted, e.g., [(2, 4), (8, 16)].
+        These are specified in config.py and used from there
+        Is is very important that the program is started in chat mode with
+        the same buckets as it was using when training. To achieve that
+        we save the config.py file in the checkpoint directory.
+      hiddenSize: number of hidden states in each cell. It is configured 
+        via config.HIDDEN_SIZ in config.py
+      numLayers: number of layers in the model. This is the number of cells that
+        are stacked (model depth). It is configured via config.NUM_LAYERS in config.py
+      maxGradientNorm: gradients will be clipped to maximally this norm. Is is configured via
+        config.MAX_GRAD_NORM
+      batchSize: the size of the batches used during training;
+        the model construction is independent of batch_size, so it can be
+        changed after initialization if this is convenient, e.g., for decoding. Read from
+        config.py
+      learningRate: learning rate to start with.
+      learningRateDecayFactor: decay learning rate by this much when needed.
+      useLstm: if true, we use LSTM cells instead of GRU cells.
+      numSamples: number of samples from the vocabulary used to build the sampled softmax.
+      forwardNetworkOnly: if set, we do not construct the backward pass in the model.
+    """
     def __init__(self, forwardOnly, batchSize):
         """
         parameters: @forwardOnly: if true - do no construct backpropagation, else do

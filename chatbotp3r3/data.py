@@ -377,6 +377,17 @@ def _reshapeBatch(inputs, size, batchSize):
 def getBatch(dataBucket, bucketId, batchSize=1):
     """ 
     Return one batch to feed into the model 
+    Get a random batch of data from the specified bucket, prepare for step.
+    To feed data in step(..) it must be a list of batch-major vectors, while
+    data here contains single length-major cases. So the main logic of this
+    function is to re-index data cases to be in the proper format for feeding.
+    Args:
+      dataBucket: a tuple of size len(self.buckets) in which each element contains
+        lists of pairs of input and output data that we use to create a batch.
+      bucketId: integer, which bucket to get the batch for.
+    Returns:
+      The triple (encoder_inputs, decoder_inputs, target_weights) for
+      the constructed batch that has the proper format to call step(...) later.
     """
     # only pad to the max length of the bucket
     encoderSize, decoderSize = config.BUCKETS[bucketId]

@@ -55,9 +55,21 @@ def _assertLengths(encoderSize, decoderSize, encoderInputs, decoderInputs, decod
 def runStep(sess, model, encoderInputs, decoderInputs, decoderMasks, bucketId, forwardOnly):
     """ 
     Run one step in training.
-    @forwardOnly: boolean value to decide whether a backward path should be created
-    forwardOnly is set to True when you just want to evaluate on the test set,
+     Args:
+      session: tensorflow session to use.
+      encoderInputs: list of numpy int vectors to feed as encoder inputs.
+      decoderInputs: list of numpy int vectors to feed as decoder inputs.
+      decoderMasks: list of numpy float vectors to feed as target weights.
+      bucketId: which bucket of the model to use.
+      forwardOnly: whether to do the backward step or only forward.
+      forwardOnly is set to True when you just want to evaluate on the test set,
     or when you want to the bot to be in chatWithBot mode. 
+    Returns:
+      A triple consisting of gradient norm (or None if we did not do backward),
+      average perplexity, and the outputs.
+    Raises (in _assertLengths):
+      ValueError: if length of encoder_inputs, decoder_inputs, or
+        target_weights disagrees with bucket size for the specified bucket_id.
     """
     encoder_size, decoder_size = config.BUCKETS[bucketId]
     _assertLengths(encoder_size, decoder_size, encoderInputs, decoderInputs, decoderMasks)
@@ -268,6 +280,8 @@ def chatWithBot():
     """
     inv_dec_vocab , enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
     
+    inv_dec_vocab[config.START_ID] = '.'
+    
     model = ChatBotModel(True, batchSize=1)
     model.buildGraph()
 
@@ -315,6 +329,8 @@ def testTheBot():
     in test mode, we don't to create the backward path
     """
     inv_dec_vocab , enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
+    
+    inv_dec_vocab[config.START_ID] = '.'
     
     model = ChatBotModel(True, batchSize=1)
     model.buildGraph()
