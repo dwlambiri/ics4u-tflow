@@ -72,9 +72,9 @@ def _checkRestoreParameters(sess, saver):
     if ckpt and ckpt.model_checkpoint_path:
         print("Loading checkpointed parameters for Chatbot")
         saver.restore(sess, ckpt.model_checkpoint_path)
-        print("State reloaded. Restarting computation....")
+        print("Found checkpointed data. Loading checkpoint....")
     else:
-        print("Starting without a checkpoint. Fresh Chatbot")
+        print("Starting without a checkpoint. Fresh Chatbot!")
 
 def _evalTestSet(sess, model, test_buckets):
     """ 
