@@ -378,7 +378,7 @@ def main():
     parser.add_argument('--debug', choices = {'yes','no'},
                         default='no', help="debug. prints extra information on the command line when chatting")
     parser.add_argument('--opt', choices = {'greedy','adam'},
-                        default='greedy', help="opt. set the optimization algorithm. default is greedy sdg")
+                        default='adam', help="opt. set the optimization algorithm. default is greedy sdg")
     parser.add_argument('--cell', choices = {'gru','lstm'},
                         default='gru', help="cell. set the rnn cell type. default is gru")
     parser.add_argument('--usefactor', choices = {'yes','no'},
