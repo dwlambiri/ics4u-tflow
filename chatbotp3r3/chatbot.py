@@ -205,9 +205,9 @@ def _constructResponse(output_logits, inv_dec_vocab, enc_vocab):
             # print("EOS={} Token={}".format(logit[0][config.END_ID], logit[0][nonstop]))
             factor = factor**config.globalDecay
             try:
-                if not _dictWithPunctuation(enc_vocab):
+                if config.useFactor == True:
                     if outputs[-1] == config.END_ID:
-                        outputs[-1] = config.START_ID
+                        outputs[-1] = enc_vocab['.']
                         if config.useFactor == True:
                             factor = config.globalFactor
                         else:
@@ -383,9 +383,11 @@ def main():
                         default='gru', help="cell. set the rnn cell type. default is gru")
     parser.add_argument('--usefactor', choices = {'yes','no'},
                         default='no', help="use response weight factor to build the answer")
+    parser.add_argument('--setfactor', type=float,
+                        default=1.5, help="set the answer verbosity factor")
+    
     args = parser.parse_args()
     
-
     if not os.path.isdir(config.PROCESSED_PATH):
         data.prepareRawData()
         data.processData()
@@ -420,6 +422,8 @@ def main():
     else:
         print("Using Greedy Optimizer")
         config.globalUseAdam = False
+        
+    config.globalFactor = args.setfactor
 
 
     if args.mode == 'train':
