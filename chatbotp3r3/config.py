@@ -80,6 +80,10 @@ NUM_SAMPLES = 512
 CHECKPOINTSTEP=1000
 CHECKPOINTSMALL=100
 CHECKTESTMULT=5
+# how many checkpoints to keep on disk
+# we might want to save the
+# training sessions to analyze them
+MAX_TO_KEEP=20
 
 globalPrintDebug = False
 globalUseLstm    = False

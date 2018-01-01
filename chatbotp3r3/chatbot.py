@@ -28,6 +28,7 @@ import tensorflow as tf
 from model import ChatBotModel
 import config
 import data
+from _pytest.outcomes import skip
 
 def _getRandomBucket(trainBucketsScale):
     """ 
@@ -101,7 +102,7 @@ def trainTheBot():
     model = ChatBotModel(False, config.BATCH_SIZE, useLstm=config.globalUseLstm ,useAdam=config.globalUseAdam)
     model.buildGraph()
 
-    saver = tf.train.Saver()
+    saver = tf.train.Saver(max_to_keep=config.MAX_TO_KEEP)
 
     with tf.Session(config=tf.ConfigProto(
       allow_soft_placement=True)) as sess:
@@ -111,6 +112,7 @@ def trainTheBot():
 
         iteration = model.globalStep.eval()
         total_loss = 0
+        #smallTotal = 0
         start = time.time()
         while True:
             try:
@@ -121,7 +123,12 @@ def trainTheBot():
                                                                                batchSize=config.BATCH_SIZE)               
                 _, step_loss, _ = model.runStep(sess, encoder_inputs, decoder_inputs, decoder_masks, bucket_id, False)
                 total_loss += step_loss
+                # smallTotal += step_loss
                 iteration += 1
+    
+#                 if iteration % config.CHECKPOINTSMALL == 0:
+#                     tf.summary.scalar('StepLoss', tf.float32(smallTotal/config.CHECKPOINTSMALL))
+#                     smallTotal = 0
     
                 if iteration % skip_step == 0:
                     print('Epoch [{:3.3f}] = ( Average Step Loss {:3.3f}: Average Step Time {:3.3f} s )'.format(iteration/1000, total_loss/skip_step, (time.time() - start)/skip_step))
@@ -385,6 +392,8 @@ def main():
                         default='no', help="use response weight factor to build the answer")
     parser.add_argument('--setfactor', type=float,
                         default=1.5, help="set the answer verbosity factor")
+    parser.add_argument('--maxtokeep', type=int,
+                        default=20, help="how many checkpoints should we keep on disk")
     
     args = parser.parse_args()
     
@@ -424,6 +433,7 @@ def main():
         config.globalUseAdam = False
         
     config.globalFactor = args.setfactor
+    config.MAX_TO_KEEP = args.maxtokeep
 
 
     if args.mode == 'train':
