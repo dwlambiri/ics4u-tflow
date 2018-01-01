@@ -381,7 +381,7 @@ def testTheBot():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices={'train', 'chat', 'test'},
-                        default='train', help="mode. train will train the bot, chat will allow user to write line, test will test against a fixed set of entrie")
+                        default='chat', help="mode. train will train the bot, chat will allow user to write line, test will test against a fixed set of entrie")
     parser.add_argument('--debug', choices = {'yes','no'},
                         default='no', help="debug. prints extra information on the command line when chatting")
     parser.add_argument('--opt', choices = {'greedy','adam'},
