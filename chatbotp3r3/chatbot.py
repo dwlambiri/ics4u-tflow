@@ -205,9 +205,13 @@ def _constructResponse(output_logits, inv_dec_vocab, enc_vocab):
             # print("EOS={} Token={}".format(logit[0][config.END_ID], logit[0][nonstop]))
             factor = factor**config.globalDecay
             try:
-                if outputs[-1] == config.END_ID:
-                    outputs[-1] = config.START_ID
-                    factor = config.globalFactor
+                if not _dictWithPunctuation(enc_vocab):
+                    if outputs[-1] == config.END_ID:
+                        outputs[-1] = config.START_ID
+                        if config.useFactor == True:
+                            factor = config.globalFactor
+                        else:
+                            factor = 1
             except IndexError:
                 pass
             outputs.append(int(nonstop))
@@ -244,7 +248,9 @@ def chatWithBot():
     """
     inv_dec_vocab , enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
     
-    inv_dec_vocab[config.START_ID] = '.'
+    if not _dictWithPunctuation(enc_vocab):
+        inv_dec_vocab[config.START_ID] = '.'
+    
     
     model = ChatBotModel(True, batchSize=1, useLstm= config.globalUseLstm, useAdam=config.globalUseAdam)
     model.buildGraph()
@@ -307,7 +313,8 @@ def testTheBot():
     """    
     inv_dec_vocab , enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
     
-    inv_dec_vocab[config.START_ID] = '.'
+    if not _dictWithPunctuation(enc_vocab):
+        inv_dec_vocab[config.START_ID] = '.'
     
     model = ChatBotModel(True, batchSize=1, useLstm= config.globalUseLstm, useAdam=config.globalUseAdam)
     model.buildGraph()
