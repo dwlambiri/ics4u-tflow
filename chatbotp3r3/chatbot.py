@@ -169,7 +169,7 @@ def _dictWithPunctuation(encVocab):
         return False
     
     
-def _constructResponse(output_logits, inv_dec_vocab):
+def _constructResponse(output_logits, inv_dec_vocab, enc_vocab):
     """ 
     Construct a response to the user's encoder input.
     @output_logits: the outputs from sequence to sequence wrapper.
@@ -222,14 +222,18 @@ def _constructResponse(output_logits, inv_dec_vocab):
     if config.END_ID in outputs:
         outputs = outputs[:outputs.index(config.END_ID)]
     # Print out sentence corresponding to outputs.
-    try:
-        first = outputs[0]
-        if _isQuestion(inv_dec_vocab[first]):
-            eol = " ?"
-        else:
-            eol = " ."
-    except IndexError:
-        eol = " ???"
+    if _dictWithPunctuation(enc_vocab):
+        eol = ''
+    else:
+        try:
+            first = outputs[0]
+            if _isQuestion(inv_dec_vocab[first]):
+                eol = " ?"
+            else:
+                eol = " ."
+        except IndexError:
+            eol = " ???"
+    
     return " ".join([tf.compat.as_str(inv_dec_vocab[output]) for output in outputs]) + eol
 
 def chatWithBot():
@@ -285,7 +289,7 @@ def chatWithBot():
             # Get output logits for the sentence.
             _, _, output_logits = model.runStep(sess, encoder_inputs, decoder_inputs,
                                            decoder_masks, bucket_id, True)
-            response = _constructResponse(output_logits, inv_dec_vocab)
+            response = _constructResponse(output_logits, inv_dec_vocab, enc_vocab)
             print('\n'+'BOT ++++ ' + response + '\n')
             output_file.write('BOT ++++ ' + response + '\n')
         output_file.write('=========={}==LAYERS={}==HIDENSIZE={}==BATCH={}==BUCKETS={}==PUNCTUATION={}===USEFACTOR={}=====\n'.format(time.ctime(), config.NUM_LAYERS, config.HIDDEN_SIZE, config.BATCH_SIZE, config.BUCKETS, config.USEPUNCTUATION, config.useFactor))
@@ -348,7 +352,7 @@ def testTheBot():
                     # Get output logits for the sentence.
                     _, _, output_logits = model.runStep(sess, encoder_inputs, decoder_inputs,
                                                    decoder_masks, bucket_id, True)
-                    response = _constructResponse(output_logits, inv_dec_vocab)
+                    response = _constructResponse(output_logits, inv_dec_vocab, enc_vocab)
                     print('\n'+'BOT ++++ ' + response + '\n')
                     output_file.write('BOT ++++ ' + response + '\n')
                 file.close()
