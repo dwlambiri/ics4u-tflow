@@ -37,69 +37,6 @@ def _getRandomBucket(trainBucketsScale):
     return min([i for i in range(len(trainBucketsScale))
                 if trainBucketsScale[i] > rand])
 
-def _assertLengths(encoderSize, decoderSize, encoderInputs, decoderInputs, decoderMasks):
-    """
-     Assert that the encoder inputs, decoder inputs, and decoder masks are
-     of the expected lengths 
-    """
-    if len(encoderInputs) != encoderSize:
-        raise ValueError("Encoder length must be equal to the one in bucket,"
-                        " %d != %d." % (len(encoderInputs), encoderSize))
-    if len(decoderInputs) != decoderSize:
-        raise ValueError("Decoder length must be equal to the one in bucket,"
-                       " %d != %d." % (len(decoderInputs), decoderSize))
-    if len(decoderMasks) != decoderSize:
-        raise ValueError("Weights length must be equal to the one in bucket,"
-                       " %d != %d." % (len(decoderMasks), decoderSize))
-
-def runStep(sess, model, encoderInputs, decoderInputs, decoderMasks, bucketId, forwardOnly):
-    """ 
-    Run one step in training.
-     Args:
-      session: tensorflow session to use.
-      encoderInputs: list of numpy int vectors to feed as encoder inputs.
-      decoderInputs: list of numpy int vectors to feed as decoder inputs.
-      decoderMasks: list of numpy float vectors to feed as target weights.
-      bucketId: which bucket of the model to use.
-      forwardOnly: whether to do the backward step or only forward.
-      forwardOnly is set to True when you just want to evaluate on the test set,
-    or when you want to the bot to be in chatWithBot mode. 
-    Returns:
-      A triple consisting of gradient norm (or None if we did not do backward),
-      average perplexity, and the outputs.
-    Raises (in _assertLengths):
-      ValueError: if length of encoder_inputs, decoder_inputs, or
-        target_weights disagrees with bucket size for the specified bucket_id.
-    """
-    encoder_size, decoder_size = config.BUCKETS[bucketId]
-    _assertLengths(encoder_size, decoder_size, encoderInputs, decoderInputs, decoderMasks)
-
-    # input feed: encoder inputs, decoder inputs, target_weights, as provided.
-    input_feed = {}
-    for step in range(encoder_size):
-        input_feed[model.encoderInputs[step].name] = encoderInputs[step]
-    for step in range(decoder_size):
-        input_feed[model.decoderInputs[step].name] = decoderInputs[step]
-        input_feed[model.decoderMasks[step].name] = decoderMasks[step]
-
-    last_target = model.decoderInputs[decoder_size].name
-    input_feed[last_target] = np.zeros([model.batchSize], dtype=np.int32)
-
-    # output feed: depends on whether we do a backward step or not.
-    if not forwardOnly:
-        output_feed = [model.trainOps[bucketId],  # update op that does SGD.
-                       model.gradientNorms[bucketId],  # gradient norm.
-                       model.losses[bucketId]]  # loss for this batch.
-    else:
-        output_feed = [model.losses[bucketId]]  # loss for this batch.
-        for step in range(decoder_size):  # output logits.
-            output_feed.append(model.outputs[bucketId][step])
-
-    outputs = sess.run(output_feed, input_feed)
-    if not forwardOnly:
-        return outputs[1], outputs[2], None  # Gradient norm, loss, no outputs.
-    else:
-        return None, outputs[0], outputs[1:]  # No gradient norm, loss, outputs.
 
 def _getBuckets():
     """ 
@@ -150,7 +87,7 @@ def _evalTestSet(sess, model, test_buckets):
         encoder_inputs, decoder_inputs, decoder_masks = data.getBatch(test_buckets[bucket_id], 
                                                                         bucket_id,
                                                                         batchSize=config.BATCH_SIZE)
-        _, step_loss, _ = runStep(sess, model, encoder_inputs, decoder_inputs, 
+        _, step_loss, _ = model.runStep(sess, encoder_inputs, decoder_inputs, 
                                    decoder_masks, bucket_id, True)
         print('Test bucket[{}] =( loss {:3.3f}: time {:3.3f} s )'.format(bucket_id, step_loss, time.time() - start))
 
@@ -161,7 +98,7 @@ def trainTheBot():
     print("This is a training session....")
     test_buckets, data_buckets, train_buckets_scale = _getBuckets()
     # in trainTheBot mode, we need to create the backward path, so forwrad_only is False
-    model = ChatBotModel(False, config.BATCH_SIZE)
+    model = ChatBotModel(False, config.BATCH_SIZE, useLstm=config.globalUseLstm ,useAdam=config.globalUseAdam)
     model.buildGraph()
 
     saver = tf.train.Saver()
@@ -182,7 +119,7 @@ def trainTheBot():
                 encoder_inputs, decoder_inputs, decoder_masks = data.getBatch(data_buckets[bucket_id], 
                                                                                bucket_id,
                                                                                batchSize=config.BATCH_SIZE)               
-                _, step_loss, _ = runStep(sess, model, encoder_inputs, decoder_inputs, decoder_masks, bucket_id, False)
+                _, step_loss, _ = model.runStep(sess, encoder_inputs, decoder_inputs, decoder_masks, bucket_id, False)
                 total_loss += step_loss
                 iteration += 1
     
@@ -216,13 +153,22 @@ def _findRightBucket(length):
                 if config.BUCKETS[b][0] >= length])
     
 def _isQuestion(word):
-    question = {'how': True,'where': True,'who': True, 'why': True, 
+    question = {'how': True, 'hows': True, 'where': True,'who': True, 'whos': True, 'why': True, 
                 'what': True, 'are': True, 'do' : True, 'whats': True}
     try:
         return question[word]
     except KeyError:
         return False
-
+ 
+    
+def _dictWithPunctuation(encVocab):
+    try:
+        _ = encVocab['!']
+        return True
+    except KeyError:
+        return False
+    
+    
 def _constructResponse(output_logits, inv_dec_vocab):
     """ 
     Construct a response to the user's encoder input.
@@ -235,22 +181,33 @@ def _constructResponse(output_logits, inv_dec_vocab):
     #print(output_logits[0])
 
     outputs = []
-    factor = 1.5
+    """
+    we use a factor to multiply the best answer other than 
+    EOS. This will make the response more chatty
+    The factor is reduced to factor**0.3
+    every iteration. See below.
+    """
+    if config.useFactor == True:
+        factor = config.globalFactor
+    else:
+        factor = 1
     for logit in output_logits:
         nonstop = np.argmax(logit[0][config.END_ID+1:])+config.END_ID+1
         #if iter == 0:
         #   outputs.append(int(nonstop))
         #else:
-        print("Factor={} EOS={} Token={}".format(factor, logit[0][config.END_ID], logit[0][nonstop]))
+        if config.globalPrintDebug == True:
+            print("Factor={} EOS={} Token={}".format(factor, logit[0][config.END_ID], logit[0][nonstop]))
         if logit[0][config.END_ID] > factor* logit[0][nonstop]:
             outputs.append(config.END_ID)
+            factor = factor**config.globalDecay
         else:
             # print("EOS={} Token={}".format(logit[0][config.END_ID], logit[0][nonstop]))
-            factor = factor**0.3
+            factor = factor**config.globalDecay
             try:
                 if outputs[-1] == config.END_ID:
                     outputs[-1] = config.START_ID
-                    factor = 1.5
+                    factor = config.globalFactor
             except IndexError:
                 pass
             outputs.append(int(nonstop))
@@ -258,9 +215,10 @@ def _constructResponse(output_logits, inv_dec_vocab):
 
     #outputs = [int(np.argmax(logit[0][config.END_ID:])+config.END_ID) for logit in output_logits]
     # If there is an EOS symbol in outputs, cut them at that point.
-    print("Outputs{}".format(outputs))
-    for output in outputs:
-        print("OToken={}".format(inv_dec_vocab[output]))
+    if config.globalPrintDebug == True:
+        print("Outputs{}".format(outputs))
+        for output in outputs:
+            print("OToken={}".format(inv_dec_vocab[output]))
     if config.END_ID in outputs:
         outputs = outputs[:outputs.index(config.END_ID)]
     # Print out sentence corresponding to outputs.
@@ -276,13 +234,15 @@ def _constructResponse(output_logits, inv_dec_vocab):
 
 def chatWithBot():
     """ 
-    in test mode, we don't to create the backward path
+    this is the main chat function
+    it rebuilds the model without backprobagation and waits for the user to input
+    a line. it runs the line through the model the outputs a result
     """
     inv_dec_vocab , enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
     
     inv_dec_vocab[config.START_ID] = '.'
     
-    model = ChatBotModel(True, batchSize=1)
+    model = ChatBotModel(True, batchSize=1, useLstm= config.globalUseLstm, useAdam=config.globalUseAdam)
     model.buildGraph()
 
     saver = tf.train.Saver()
@@ -291,10 +251,17 @@ def chatWithBot():
         writer = tf.summary.FileWriter(config.CPT_PATH, sess.graph)
         sess.run(tf.global_variables_initializer())
         _checkRestoreParameters(sess, saver)
-        output_file = open(os.path.join(config.PROCESSED_PATH, config.OUTPUT_FILE), 'a+')
+        output_file = open(config.OUTPUT_FILE, 'a+')
         # Decode from standard input.
         max_length = config.BUCKETS[-1][0]
         print('Welcome to ICS4UTensorChat! Press <enter> on an empty line to exit the program!')
+        if _dictWithPunctuation(enc_vocab):
+            config.USEPUNCTUATION = True
+            print('This instance uses punctuation. Use [,.?!] to improve the answers.')
+        else:
+            config.USEPUNCTUATION = False
+            print('This instance ignores punctuation.')
+        
         while True:
             line = _getUserInput()
             if len(line) > 0 and line[-1] == '\n':
@@ -309,30 +276,36 @@ def chatWithBot():
                 continue
             # Which bucket does it belong to?
             bucket_id = _findRightBucket(len(token_ids))
-            print("BucketID {} Token Ids {}".format(bucket_id, token_ids))
+            if config.globalPrintDebug == True:
+                print("BucketID {} Token Ids {}".format(bucket_id, token_ids))
             # Get a 1-element batch to feed the sentence to the model.
             encoder_inputs, decoder_inputs, decoder_masks = data.getBatch([(token_ids, [])], 
                                                                             bucket_id,
                                                                             batchSize=1)
             # Get output logits for the sentence.
-            _, _, output_logits = runStep(sess, model, encoder_inputs, decoder_inputs,
+            _, _, output_logits = model.runStep(sess, encoder_inputs, decoder_inputs,
                                            decoder_masks, bucket_id, True)
             response = _constructResponse(output_logits, inv_dec_vocab)
             print('\n'+'BOT ++++ ' + response + '\n')
             output_file.write('BOT ++++ ' + response + '\n')
-        output_file.write('==============={}==============================\n'.format(time.ctime()))
+        output_file.write('=========={}==LAYERS={}==HIDENSIZE={}==BATCH={}==BUCKETS={}==PUNCTUATION={}===USEFACTOR={}=====\n'.format(time.ctime(), config.NUM_LAYERS, config.HIDDEN_SIZE, config.BATCH_SIZE, config.BUCKETS, config.USEPUNCTUATION, config.useFactor))
         output_file.close()
         writer.close() 
 
 def testTheBot():
     """ 
-    in test mode, we don't to create the backward path
-    """
+    this function runs lists of user inputs from a file
+    it rebuilds the model without backprobagation and waits for the user to input
+    a line. it runs the line through the model the outputs a result
+    it is used to test model with specific batches of inputs
+    as all results are recorded in output_convo.txt we can check which 
+    model is 'better'
+    """    
     inv_dec_vocab , enc_vocab = data.loadVocabulary(os.path.join(config.PROCESSED_PATH, config.VOCAB_FILE))
     
     inv_dec_vocab[config.START_ID] = '.'
     
-    model = ChatBotModel(True, batchSize=1)
+    model = ChatBotModel(True, batchSize=1, useLstm= config.globalUseLstm, useAdam=config.globalUseAdam)
     model.buildGraph()
 
     saver = tf.train.Saver()
@@ -341,10 +314,16 @@ def testTheBot():
         writer = tf.summary.FileWriter(config.CPT_PATH, sess.graph)
         sess.run(tf.global_variables_initializer())
         _checkRestoreParameters(sess, saver)
-        output_file = open(os.path.join(config.PROCESSED_PATH, config.OUTPUT_FILE), 'a+')
+        output_file = open(config.OUTPUT_FILE, 'a+')
         # Decode from standard input.
         max_length = config.BUCKETS[-1][0]
         print('Testing ICS4UBot using test file {}'.format(config.CMDFILENAME))
+        if _dictWithPunctuation(enc_vocab):
+            config.USEPUNCTUATION = True
+            print('This instance uses punctuation. Use [,.?!] to improve the answers.')
+        else:
+            config.USEPUNCTUATION = False
+            print('This instance ignores punctuation.')
         try:
             with open(config.CMDFILENAME, 'r') as file:
                 for line in file.readlines():
@@ -360,13 +339,14 @@ def testTheBot():
                         continue
                     # Which bucket does it belong to?
                     bucket_id = _findRightBucket(len(token_ids))
-                    print("BucketID {} Token Ids {}".format(bucket_id, token_ids))
+                    if config.globalPrintDebug == True:
+                        print("BucketID {} Token Ids {}".format(bucket_id, token_ids))
                     # Get a 1-element batch to feed the sentence to the model.
                     encoder_inputs, decoder_inputs, decoder_masks = data.getBatch([(token_ids, [])], 
                                                                                     bucket_id,
                                                                                     batchSize=1)
                     # Get output logits for the sentence.
-                    _, _, output_logits = runStep(sess, model, encoder_inputs, decoder_inputs,
+                    _, _, output_logits = model.runStep(sess, encoder_inputs, decoder_inputs,
                                                    decoder_masks, bucket_id, True)
                     response = _constructResponse(output_logits, inv_dec_vocab)
                     print('\n'+'BOT ++++ ' + response + '\n')
@@ -375,7 +355,7 @@ def testTheBot():
         except FileNotFoundError:
             print('error: Test file {} not found!'.format(config.CMDFILENAME))
 
-        output_file.write('==============={}==============================\n'.format(time.ctime()))
+        output_file.write('=========={}==LAYERS={}==HIDENSIZE={}==BATCH={}==BUCKETS={}==PUNCTUATION={}===USEFACTOR={}=====\n'.format(time.ctime(), config.NUM_LAYERS, config.HIDDEN_SIZE, config.BATCH_SIZE, config.BUCKETS, config.USEPUNCTUATION, config.useFactor))
         output_file.close()
         writer.close() 
 
@@ -383,8 +363,17 @@ def testTheBot():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices={'train', 'chat', 'test'},
-                        default='train', help="mode. if not specified, it's in the trainTheBot mode")
+                        default='train', help="mode. train will train the bot, chat will allow user to write line, test will test against a fixed set of entrie")
+    parser.add_argument('--debug', choices = {'yes','no'},
+                        default='no', help="debug. prints extra information on the command line when chatting")
+    parser.add_argument('--opt', choices = {'greedy','adam'},
+                        default='greedy', help="opt. set the optimization algorithm. default is greedy sdg")
+    parser.add_argument('--cell', choices = {'gru','lstm'},
+                        default='gru', help="cell. set the rnn cell type. default is gru")
+    parser.add_argument('--usefactor', choices = {'yes','no'},
+                        default='no', help="use response weight factor to build the answer")
     args = parser.parse_args()
+    
 
     if not os.path.isdir(config.PROCESSED_PATH):
         data.prepareRawData()
@@ -392,6 +381,35 @@ def main():
     print('Data ready!')
     # create checkpoints folder if there isn't one already
     data.makeOutputDirectory(config.CPT_PATH)
+
+    if args.usefactor == 'yes':
+        config.useFactor = True
+        print("Use factor On")
+    else:
+        print("Use factor Off")
+        config.useFactor = False
+            
+    if args.debug == 'yes':
+        config.globalPrintDebug = True
+        print("Debug Mode On")
+    else:
+        print("Debug Mode Off")
+        config.globalPrintDebug = False
+        
+    if args.cell == 'lstm':
+        print("Using LSTM Cells")
+        config.globalUseLstm = True
+    else:
+        print("Using GRU Cells")
+        config.globalUseLstm = False
+
+    if args.opt == 'adam':
+        print("Using Adam Optimizer")
+        config.globalUseAdam = True
+    else:
+        print("Using Greedy Optimizer")
+        config.globalUseAdam = False
+
 
     if args.mode == 'train':
         trainTheBot()

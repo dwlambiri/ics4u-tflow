@@ -24,15 +24,26 @@ DECODER   = '.dec'
 IDS       = '_ids'
 CMDFILENAME = 'test.txt'
 
-
 # vocabulary parameters
-PAD_ID = 0
-UNK_ID = 1
-START_ID = 2
-END_ID = 3
+UNKSECOND=False
+USEPUNCTUATION=True
 
-SPECIAL_SEQ = ['<pad>', '<unk>', '<s>', '<\s>']
-SPECIAL_ID = [PAD_ID, UNK_ID, START_ID, END_ID]
+if UNKSECOND==True:
+    PAD_ID = 0
+    UNK_ID = 1
+    START_ID = 2
+    END_ID = 3
+    
+    SPECIAL_SEQ = ['<pad>', '<unk>', '<s>', '<\s>']
+    SPECIAL_ID = [PAD_ID, UNK_ID, START_ID, END_ID]
+else:
+    PAD_ID = 0
+    START_ID = 1
+    END_ID = 2
+    UNK_ID = 3
+    
+    SPECIAL_SEQ = ['<pad>', '<s>', '<\s>', '<unk>']
+    SPECIAL_ID = [PAD_ID, START_ID, END_ID, UNK_ID]
 
 """
 if a word shows up in the data less than THRESHOLD
@@ -48,7 +59,7 @@ only dialog pairs that are withing QADIFF_THRESHOLD
 length of each other are used. This eliminates
 monologues, which tend to appear in movies
 """
-QADIFF_THRESHOLD = 5
+QADIFF_THRESHOLD = 8
 
 #test set parameters
 TESTSET_SIZE = 25000
@@ -57,11 +68,11 @@ TESTSET_SIZE = 25000
 DATABUCKET=10000
 
 # seq2seq model configuration
-BUCKETS = [(5, 10), (10, 16) , (16, 21)]
+BUCKETS = [(16, 19)]
 NUM_LAYERS = 3
 HIDDEN_SIZE = 256
 BATCH_SIZE = 64
-LR = 0.1
+LR = 0.5
 MAX_GRAD_NORM = 5.0
 NUM_SAMPLES = 512
 
@@ -69,3 +80,12 @@ NUM_SAMPLES = 512
 CHECKPOINTSTEP=1000
 CHECKPOINTSMALL=100
 CHECKTESTMULT=5
+
+globalPrintDebug = False
+globalUseLstm    = False
+globalUseAdam    = False
+
+globalFactor     = 1.5
+globalDecay      = 0.3
+useFactor        = False
+

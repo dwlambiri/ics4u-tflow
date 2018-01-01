@@ -18,9 +18,11 @@ cs20si.stanford.edu
 
 import time
 import tensorflow as tf
+import numpy as np
 
 import config
 import os
+#from tensorflow.contrib.slim.python.slim import learning
 
 class ChatBotModel(object):
     """
@@ -67,7 +69,7 @@ class ChatBotModel(object):
       numSamples: number of samples from the vocabulary used to build the sampled softmax.
       forwardNetworkOnly: if set, we do not construct the backward pass in the model.
     """
-    def __init__(self, forwardOnly, batchSize):
+    def __init__(self, forwardOnly = False, batchSize = 1, useLstm = False, useAdam = False):
         """
         parameters: @forwardOnly: if true - do no construct backpropagation, else do
                     @batchSize - the list of batches
@@ -75,6 +77,8 @@ class ChatBotModel(object):
         print('Initialize new model')
         self.forwardNetworkOnly = forwardOnly
         self.batchSize = batchSize
+        self.useLstm = useLstm
+        self.useAdam = useAdam
         setattr(tf.contrib.rnn.GRUCell, '__deepcopy__', lambda self, _: self)
         setattr(tf.contrib.rnn.BasicLSTMCell, '__deepcopy__', lambda self, _: self)
         setattr(tf.contrib.rnn.MultiRNNCell, '__deepcopy__', lambda self, _: self)
@@ -95,8 +99,20 @@ class ChatBotModel(object):
 
         # Our targets are decoder inputs shifted by one (to ignore <s> symbol)
         self.targets = self.decoderInputs[1:]
-        
-    def _inference(self):
+ 
+         
+    def _createCells(self):
+        print('Create RNN cells...')
+        if self.useLstm == False:      
+            print('Create GRU Cells')
+            single_cell = tf.nn.rnn_cell.GRUCell(config.HIDDEN_SIZE)
+        else:
+            print('Create LSTM Cells')
+            single_cell = tf.nn.rnn_cell.BasicLSTMCell(config.HIDDEN_SIZE)
+
+        self.cell = tf.nn.rnn_cell.MultiRNNCell([single_cell] * config.NUM_LAYERS)
+
+    def _createSeq2SeqModel(self):
         print('Create a sampled softmax function')
         # If we use sampled softmax, we need an output projection.
         # Sampled softmax only makes sense if we sample less than vocabulary size.
@@ -111,11 +127,7 @@ class ChatBotModel(object):
                                               config.NUM_SAMPLES, self.vocabSize)
         self.softmaxLossFunction = sampledLoss
 
-        single_cell = tf.nn.rnn_cell.GRUCell(config.HIDDEN_SIZE)
-        self.cell = tf.nn.rnn_cell.MultiRNNCell([single_cell] * config.NUM_LAYERS)
-
-    def _createLoss(self):
-        print('Creating a loss function...')
+        print('Create the Seq2Seq Model...')
         start = time.time()
         def _seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
             return tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
@@ -127,7 +139,7 @@ class ChatBotModel(object):
                     feed_previous=do_decode)
 
         if self.forwardNetworkOnly:
-            print('fw is true')
+            print('Forward network only...')
             self.outputs, self.losses = tf.contrib.legacy_seq2seq.model_with_buckets(
                                         self.encoderInputs, 
                                         self.decoderInputs, 
@@ -143,7 +155,7 @@ class ChatBotModel(object):
                                             self.outputProjection[0]) + self.outputProjection[1]
                                             for output in self.outputs[bucket]]
         else:
-            print('fw is false')
+            print('Network with back-propagation')
             self.outputs, self.losses = tf.contrib.legacy_seq2seq.model_with_buckets(
                                         self.encoderInputs, 
                                         self.decoderInputs, 
@@ -159,8 +171,14 @@ class ChatBotModel(object):
         with tf.variable_scope('training') as scope:
             self.globalStep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
 
+            """
+            The optimizer is set only in training mode as it is used to find the model weights
+            """
             if not self.forwardNetworkOnly:
-                self.optimizer = tf.train.GradientDescentOptimizer(config.LR)
+                if self.useAdam == True:
+                    self.optimizer = tf.train.AdamOptimizer(learning_rate=config.LR)
+                else:
+                    self.optimizer = tf.train.GradientDescentOptimizer(config.LR)
                 trainables = tf.trainable_variables()
                 self.gradientNorms = []
                 self.trainOps = []
@@ -180,9 +198,78 @@ class ChatBotModel(object):
     def _createSummary(self):
         pass
 
+        
+    def _assertLengths(self, encoderSize, decoderSize, encoderInputs, decoderInputs, decoderMasks):
+        """
+         Assert that the encoder inputs, decoder inputs, and decoder masks are
+         of the expected lengths 
+        """
+        if len(encoderInputs) != encoderSize:
+            raise ValueError("Encoder length must be equal to the one in bucket,"
+                            " %d != %d." % (len(encoderInputs), encoderSize))
+        if len(decoderInputs) != decoderSize:
+            raise ValueError("Decoder length must be equal to the one in bucket,"
+                           " %d != %d." % (len(decoderInputs), decoderSize))
+        if len(decoderMasks) != decoderSize:
+            raise ValueError("Weights length must be equal to the one in bucket,"
+                           " %d != %d." % (len(decoderMasks), decoderSize))
+
+
     def buildGraph(self):
         self._createPlaceholders()
-        self._inference()
-        self._createLoss()
+        self._createCells()
+        self._createSeq2SeqModel()
         self._createOptimizer()
         self._createSummary()
+
+        
+    def runStep(self, sess, encoderInputs, decoderInputs, decoderMasks, bucketId, forwardOnly):
+        """ 
+        Run one step in training.
+         Args:
+          session: tensorflow session to use.
+          encoderInputs: list of numpy int vectors to feed as encoder inputs.
+          decoderInputs: list of numpy int vectors to feed as decoder inputs.
+          decoderMasks: list of numpy float vectors to feed as target weights.
+          bucketId: which bucket of the model to use.
+          forwardOnly: whether to do the backward step or only forward.
+          forwardOnly is set to True when you just want to evaluate on the test set,
+        or when you want to the bot to be in chatWithBot mode. 
+        Returns:
+          A triple consisting of gradient norm (or None if we did not do backward),
+          average perplexity, and the outputs.
+        Raises (in _assertLengths):
+          ValueError: if length of encoder_inputs, decoder_inputs, or
+            target_weights disagrees with bucket size for the specified bucket_id.
+        """
+        encoder_size, decoder_size = config.BUCKETS[bucketId]
+        self._assertLengths(encoder_size, decoder_size, encoderInputs, decoderInputs, decoderMasks)
+    
+        # input feed: encoder inputs, decoder inputs, target_weights, as provided.
+        input_feed = {}
+        for step in range(encoder_size):
+            input_feed[self.encoderInputs[step].name] = encoderInputs[step]
+        for step in range(decoder_size):
+            input_feed[self.decoderInputs[step].name] = decoderInputs[step]
+            input_feed[self.decoderMasks[step].name] = decoderMasks[step]
+    
+        last_target = self.decoderInputs[decoder_size].name
+        input_feed[last_target] = np.zeros([self.batchSize], dtype=np.int32)
+    
+        # output feed: depends on whether we do a backward step or not.
+        if not forwardOnly:
+            output_feed = [self.trainOps[bucketId],  # update op that does SGD.
+                           self.gradientNorms[bucketId],  # gradient norm.
+                           self.losses[bucketId]]  # loss for this batch.
+        else:
+            output_feed = [self.losses[bucketId]]  # loss for this batch.
+            for step in range(decoder_size):  # output logits.
+                output_feed.append(self.outputs[bucketId][step])
+    
+        outputs = sess.run(output_feed, input_feed)
+        if not forwardOnly:
+            return outputs[1], outputs[2], None  # Gradient norm, loss, no outputs.
+        else:
+            return None, outputs[0], outputs[1:]  # No gradient norm, loss, outputs.
+
+

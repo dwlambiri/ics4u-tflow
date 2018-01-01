@@ -34,6 +34,13 @@ def getLines():
     with open(filePath, 'r') as file:
         allLines = file.readlines()
         for line in allLines:
+            """
+            split the line using the ' +++$+++ ' separator
+            the line will split into 4 token
+            Example line:
+            +++$+++ u0 +++$+++ m0 +++$+++ BIANCA +++$+++ Forget French.
+            ['u0', 'm0', 'BIANCA', 'Forget French.']
+            """
             parts = line.split(' +++$+++ ')
             if len(parts) == 5:
                 if parts[4][-1] == '\n':
@@ -46,6 +53,7 @@ def getConversations():
     Get conversations from the movies dialog file 
     Conversations are lists of movie lines
     ie. [L1, L2, L3, L4]
+    we pick pairs from the conversation list
     """
     filePath = os.path.join(config.DATA_PATH, config.CONVO_FILE)
     conversationList = []
@@ -172,7 +180,6 @@ def lineTokenizer(bline):
     line = re.sub('\[', '', line)
     line = re.sub('\]', '', line)
     line = re.sub('\'','',line)
-    line = re.sub('\.',' ',line)
     line = re.sub('\"','',line)
     line = re.sub('#',' number ',line)
     line = re.sub('19',' nineteen ',line)
@@ -209,7 +216,10 @@ def lineTokenizer(bline):
     letters.
     
     """
-    _WORD_EXPRESSION = re.compile("([a-z]+)")
+    if config.USEPUNCTUATION==True:
+        _WORD_EXPRESSION = re.compile("([a-z]+|[\.\?!]+|<s>|<unk>|<pad>|</s>)")
+    else:
+        _WORD_EXPRESSION = re.compile("([a-z]+|<s>|<unk>|<pad>|</s>)")
     for fragment in line.strip().lower().split():
         for token in re.findall(_WORD_EXPRESSION, fragment):
             if not token:
@@ -427,7 +437,6 @@ def processData():
     buildVocabulary(config.TRAINFILE+config.ENCODER, config.TRAINFILE+config.DECODER, config.TESTFILE+config.ENCODER, config.TESTFILE+config.DECODER)
     print('Building train and test data sets ...')
     buildIDFiles(config.TRAINFILE, config.TESTFILE)
-
 
 if __name__ == '__main__':
     prepareRawData()
