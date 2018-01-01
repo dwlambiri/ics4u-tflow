@@ -176,7 +176,7 @@ class ChatBotModel(object):
             """
             if not self.forwardNetworkOnly:
                 if self.useAdam == True:
-                    self.optimizer = tf.train.AdamOptimizer(learning_rate=config.LR)
+                    self.optimizer = tf.train.AdamOptimizer()
                 else:
                     self.optimizer = tf.train.GradientDescentOptimizer(config.LR)
                 trainables = tf.trainable_variables()
