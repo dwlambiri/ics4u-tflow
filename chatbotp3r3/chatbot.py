@@ -214,7 +214,10 @@ def _constructResponse(output_logits, inv_dec_vocab, enc_vocab):
             try:
                 if config.useFactor == True:
                     if outputs[-1] == config.END_ID:
-                        outputs[-1] = enc_vocab['.']
+                        if _dictWithPunctuation(enc_vocab):
+                            outputs[-1] = enc_vocab['.']
+                        else:
+                            outputs[-1] = config.START_ID
                         if config.useFactor == True:
                             factor = config.globalFactor
                         else:
