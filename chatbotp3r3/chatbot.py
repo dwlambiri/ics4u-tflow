@@ -28,7 +28,6 @@ import tensorflow as tf
 from model import ChatBotModel
 import config
 import data
-from _pytest.outcomes import skip
 
 def _getRandomBucket(trainBucketsScale):
     """ 
@@ -397,6 +396,8 @@ def main():
                         default=1.5, help="set the answer verbosity factor")
     parser.add_argument('--maxtokeep', type=int,
                         default=20, help="how many checkpoints should we keep on disk")
+    parser.add_argument('--testfile', type=str,
+                         default='test.txt', help="use this as test file. test mode only")
     
     args = parser.parse_args()
     
@@ -437,6 +438,8 @@ def main():
         
     config.globalFactor = args.setfactor
     config.MAX_TO_KEEP = args.maxtokeep
+    config.CMDFILENAME = args.testfile
+    print("TTTTTT={}".format(args.testfile))
 
 
     if args.mode == 'train':
