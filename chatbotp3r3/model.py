@@ -167,13 +167,14 @@ class ChatBotModel(object):
         print('Time: {:3.3f} seconds'.format(time.time() - start))
 
     def _createOptimizer(self):
-        print('Creating optimizer function (one per bucket)...')
+        """
+        The optimizer is set only in training mode as it is used to find the model weights
+        """
+
         with tf.variable_scope('training') as scope:
+            print('Creating optimizer function (one per bucket)...')
             self.globalStep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
 
-            """
-            The optimizer is set only in training mode as it is used to find the model weights
-            """
             if not self.forwardNetworkOnly:
                 if self.useAdam == True:
                     self.optimizer = tf.train.AdamOptimizer()

@@ -27,7 +27,7 @@ def getLines():
     """ 
     Get script lines from the lines file 
     This is a textual representation 
-    of the lines spoken int the movies
+    of the lines spoken in the movies
     """
     id2Line = {}
     filePath = os.path.join(config.DATA_PATH, config.LINE_FILE)
