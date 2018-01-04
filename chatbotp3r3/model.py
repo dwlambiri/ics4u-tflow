@@ -89,7 +89,7 @@ class ChatBotModel(object):
     
     def _createPlaceholders(self):
         # Feeds for inputs. It's a list of placeholders
-        print('Create TF placeholders for enc and dec objects')
+        print('Create TensorFlow placeholders for enc, dec and mask objects')
         self.encoderInputs = [tf.placeholder(tf.int32, shape=[None], name='encoder{}'.format(i))
                                for i in range(config.BUCKETS[-1][0])]
         self.decoderInputs = [tf.placeholder(tf.int32, shape=[None], name='decoder{}'.format(i))
@@ -102,17 +102,23 @@ class ChatBotModel(object):
  
          
     def _createCells(self):
-        print('Create RNN cells...')
+        """
+        Create the multi rnn cell using either GRU or LSTM cells
+        Each cell maintains a HIDDEN_SIZE state and there
+        are NUM_LAYERS cells in the model
+        """
+        print('Create MultiRNN cell with. layers = {}'.format(config.NUM_LAYERS))
         if self.useLstm == False:      
-            print('Create GRU Cells')
+            print('Using GRU Cells to build the model. Hidden Size={}'.format(config.HIDDEN_SIZE))
             single_cell = tf.nn.rnn_cell.GRUCell(config.HIDDEN_SIZE)
         else:
-            print('Create LSTM Cells')
+            print('Using BasicLSTM Cells to build the model. Hidden Size={}'.format(config.HIDDEN_SIZE))
             single_cell = tf.nn.rnn_cell.BasicLSTMCell(config.HIDDEN_SIZE)
 
         self.cell = tf.nn.rnn_cell.MultiRNNCell([single_cell] * config.NUM_LAYERS)
 
     def _createSeq2SeqModel(self):
+        print('Create the Seq2S2q Model ...')
         print('Create a sampled softmax function')
         # If we use sampled softmax, we need an output projection.
         # Sampled softmax only makes sense if we sample less than vocabulary size.
@@ -127,7 +133,7 @@ class ChatBotModel(object):
                                               config.NUM_SAMPLES, self.vocabSize)
         self.softmaxLossFunction = sampledLoss
 
-        print('Create the Seq2Seq Model...')
+        print('Create the model...')
         start = time.time()
         def _seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
             return tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
@@ -139,7 +145,7 @@ class ChatBotModel(object):
                     feed_previous=do_decode)
 
         if self.forwardNetworkOnly:
-            print('Forward network only...')
+            print('Forward network model')
             self.outputs, self.losses = tf.contrib.legacy_seq2seq.model_with_buckets(
                                         self.encoderInputs, 
                                         self.decoderInputs, 
@@ -171,7 +177,7 @@ class ChatBotModel(object):
         The optimizer is set only in training mode as it is used to find the model weights
         """
 
-        with tf.variable_scope('training') as scope:
+        with tf.variable_scope('training') as _:
             print('Creating optimizer function (one per bucket)...')
             self.globalStep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
 

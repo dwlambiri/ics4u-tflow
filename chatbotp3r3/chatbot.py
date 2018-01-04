@@ -439,9 +439,7 @@ def main():
     config.globalFactor = args.setfactor
     config.MAX_TO_KEEP = args.maxtokeep
     config.CMDFILENAME = args.testfile
-    print("TTTTTT={}".format(args.testfile))
-
-
+    
     if args.mode == 'train':
         trainTheBot()
     elif args.mode == 'chat':
