@@ -284,10 +284,8 @@ def chatWithBot():
         if _dictWithPunctuation(enc_vocab):
             config.USEPUNCTUATION = True
             if _dictWithApostroph(enc_vocab):
-                config.PUNCTCHAR = True
                 config.USEAPO = True
             else:
-                config.PUNCTCHAR = False
                 config.USEAPO = False
             print('This instance uses punctuation. Use [{}] to improve the answers.'.format(config.PUNCTCHAR))
         else:
@@ -354,10 +352,8 @@ def testTheBot():
         if _dictWithPunctuation(enc_vocab):
             config.USEPUNCTUATION = True
             if _dictWithApostroph(enc_vocab):
-                config.PUNCTCHAR = True
                 config.USEAPO = True
             else:
-                config.PUNCTCHAR = False
                 config.USEAPO = False
             print('This instance uses punctuation. Use [{}] to improve the answers.'.format(config.PUNCTCHAR))
         else:
