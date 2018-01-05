@@ -26,7 +26,6 @@ CMDFILENAME = 'test.txt'
 
 # vocabulary parameters
 UNKSECOND=False
-USEPUNCTUATION=True
 
 if UNKSECOND==True:
     PAD_ID = 0
@@ -92,4 +91,18 @@ globalUseAdam    = False
 globalFactor     = 1.5
 globalDecay      = 0.3
 useFactor        = False
+
+USEPUNCTUATION=True
+USEAPO = True
+if USEPUNCTUATION:
+    REGRULE = "([a-z]+|[\?]+|[!]+|[\.]+|[\']+|[,]+|<s>|<unk>|<pad>|</s>)"
+    if USEAPO:
+        PUNCTCHAR = ",.?!\'"
+    else:
+        PUNCTCHAR = ",.?!"
+else:
+    REGRULE = "([a-z]+|<s>|<unk>|<pad>|</s>)"
+    USEAPO = False
+
+PROGNAME = "TensorFellow[ICS4U] by DJR"   
 

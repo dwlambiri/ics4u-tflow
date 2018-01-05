@@ -173,6 +173,13 @@ def _dictWithPunctuation(encVocab):
         return True
     except KeyError:
         return False
+
+def _dictWithApostroph(encVocab):
+    try:
+        _ = encVocab['\'']
+        return True
+    except KeyError:
+        return False
     
     
 def _constructResponse(output_logits, inv_dec_vocab, enc_vocab):
@@ -273,13 +280,20 @@ def chatWithBot():
         output_file = open(config.OUTPUT_FILE, 'a+')
         # Decode from standard input.
         max_length = config.BUCKETS[-1][0]
-        print('Welcome to ICS4UTensorChat! Press <enter> on an empty line to exit the program!')
+        print('Welcome to {}! Press <enter> at prompt to exit!'.format(config.PROGNAME))
         if _dictWithPunctuation(enc_vocab):
             config.USEPUNCTUATION = True
-            print('This instance uses punctuation. Use [,.?!] to improve the answers.')
+            if _dictWithApostroph(enc_vocab):
+                config.PUNCTCHAR = True
+                config.USEAPO = True
+            else:
+                config.PUNCTCHAR = False
+                config.USEAPO = False
+            print('This instance uses punctuation. Use [{}] to improve the answers.'.format(config.PUNCTCHAR))
         else:
             config.USEPUNCTUATION = False
-            print('This instance ignores punctuation.')
+            config.USEAPO = False
+            print('This instance ignores punctuation. Any typed punctuation will be stripped from user input.')
         
         while True:
             line = _getUserInput()
@@ -337,13 +351,20 @@ def testTheBot():
         output_file = open(config.OUTPUT_FILE, 'a+')
         # Decode from standard input.
         max_length = config.BUCKETS[-1][0]
-        print('Testing ICS4UBot using test file {}'.format(config.CMDFILENAME))
         if _dictWithPunctuation(enc_vocab):
             config.USEPUNCTUATION = True
-            print('This instance uses punctuation. Use [,.?!] to improve the answers.')
+            if _dictWithApostroph(enc_vocab):
+                config.PUNCTCHAR = True
+                config.USEAPO = True
+            else:
+                config.PUNCTCHAR = False
+                config.USEAPO = False
+            print('This instance uses punctuation. Use [{}] to improve the answers.'.format(config.PUNCTCHAR))
         else:
             config.USEPUNCTUATION = False
-            print('This instance ignores punctuation.')
+            config.USEAPO = False
+            print('This instance ignores punctuation. Any typed punctuation will be stripped from user input.')
+
         try:
             with open(config.CMDFILENAME, 'r') as file:
                 for line in file.readlines():

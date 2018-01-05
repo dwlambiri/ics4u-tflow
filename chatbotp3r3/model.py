@@ -74,7 +74,7 @@ class ChatBotModel(object):
         parameters: @forwardOnly: if true - do no construct backpropagation, else do
                     @batchSize - the list of batches
         """
-        print('Initialize new model')
+        print('Create Seq2seq model with buckets...')
         self.forwardNetworkOnly = forwardOnly
         self.batchSize = batchSize
         self.useLstm = useLstm
