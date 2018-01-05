@@ -52,26 +52,26 @@ all said words will point to <unk> in the text
 this limits the dictionary size and makes
 the training faster
 """
-THRESHOLD = 1
+THRESHOLD = 3
 
 """
 only dialog pairs that are withing QADIFF_THRESHOLD
 length of each other are used. This eliminates
 monologues, which tend to appear in movies
 """
-QADIFF_THRESHOLD = 8
+QADIFF_THRESHOLD = 30
 
 #test set parameters
-TESTSET_SIZE = 25000
+TESTSET_SIZE = 1000
 
 #data bucket
 DATABUCKET=10000
 
 # seq2seq model configuration
-BUCKETS = [(16, 19)]
-NUM_LAYERS = 3
-HIDDEN_SIZE = 256
-BATCH_SIZE = 64
+BUCKETS = [(30, 30)]
+NUM_LAYERS = 1
+HIDDEN_SIZE = 512
+BATCH_SIZE = 256
 LR = 0.5
 MAX_GRAD_NORM = 5.0
 NUM_SAMPLES = 512

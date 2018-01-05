@@ -179,7 +179,11 @@ def lineTokenizer(bline):
     line = re.sub('</i>', '', line)
     line = re.sub('\[', '', line)
     line = re.sub('\]', '', line)
-    line = re.sub('\'','',line)
+    line = re.sub('\.\.\.[\.]+','\.\.\.', line)
+    line = re.sub('[\?]+','\?', line)
+    line = re.sub('[\!]+','\!', line)
+    if config.USEPUNCTUATION==False:
+        line = re.sub('\'','',line)
     line = re.sub('\"','',line)
     line = re.sub('#',' number ',line)
     line = re.sub('19',' nineteen ',line)
@@ -217,7 +221,7 @@ def lineTokenizer(bline):
     
     """
     if config.USEPUNCTUATION==True:
-        _WORD_EXPRESSION = re.compile("([a-z]+|[\.\?!]+|<s>|<unk>|<pad>|</s>)")
+        _WORD_EXPRESSION = re.compile("([a-z]+|[\?]+|[!]+|[\.]+|[\']|[,]+|<s>|<unk>|<pad>|</s>)")
     else:
         _WORD_EXPRESSION = re.compile("([a-z]+|<s>|<unk>|<pad>|</s>)")
     for fragment in line.strip().lower().split():
