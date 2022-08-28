@@ -21,7 +21,7 @@ Darius W Lambiri - Rassam Yazdi - Justin Lee
 ICS4U
 Mr.Creelman
 01/05/2018
-Table of Contents
+Table of Content
 
 Initial Proposal ----------------------------------------------------------------------------- 3
 
@@ -296,6 +296,7 @@ During training the encoding statement and decoding statements are inputs to str
 Note that the output is a vector of the size DICTIONARY and the most probable word is the one in the vector with the highest numerical values.
 
 The quality of the attention layer matters a lot. In theory a good attention decoder would weigh all words and thus punctuation should not matter that much. This however for our bot is very difficult because there are many answers to the same question posed with different punctuations in the data set. See the following exchanges:
+#code 
 
 HUMAN ++++ hi!
 BOT ++++ jeeezzz !
@@ -318,7 +319,7 @@ BOT ++++ in my room .
 HUMAN ++++ where are you
 
 
-During decoding the blue cells are fed the user input and the first red cell is fed a special character (“<s>” in our case). The dotted lines are in use and the system goes through several loops, moving words towards the right in the decoder. The output is then provided to the user.
+During decoding the blue cells are fed the user input and the first red cell is fed a special character ( in our case). The dotted lines are in use and the system goes through several loops, moving words towards the right in the decoder. The output is then provided to the user.
 
 We heavily edited bot model class. Here are some changes we made to the code, in no particular order:
 -	Detailed comments explaining model type, purpose, cells used, and data member descriptions
